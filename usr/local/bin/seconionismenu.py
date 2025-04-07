@@ -100,7 +100,7 @@ class SeconionisGUI(QMainWindow):
             ("Change Tor ID", "changeid"),
             ("Change MAC", "changemac"),
             ("Reset MAC", "revertmac"),
-            ("Version", "version"),
+            ("Info", "version"),
             ("About", "about"),
             ("Exit", "exit")
         ]
