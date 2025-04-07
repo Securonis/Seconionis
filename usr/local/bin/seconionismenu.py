@@ -53,8 +53,8 @@ class SeconionisGUI(QMainWindow):
         title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #2ECC71; margin: 0;")
         
 
-        if os.path.exists("seconionis.png"):
-            pixmap = QPixmap("seconionis.png")
+        if os.path.exists("/usr/share/icons/securonis/seconionis.png"):
+            pixmap = QPixmap("/usr/share/icons/securonis/seconionis.png")
             logo_label.setPixmap(pixmap.scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation))  
         else:
             logo_label.setText("!")
