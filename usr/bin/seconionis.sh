@@ -146,25 +146,25 @@ get_ip() {
 backup_torrc() {
     warn "Backing up tor config..."
     mv "$TORRC" $BACKUPDIR/torrc.bak
-    msg "[+]Backed up tor config"
+    msg "Backed up tor config"
 }
 
 backup_resolv_conf() {
     info "Backing up nameservers..."
     mv /etc/resolv.conf $BACKUPDIR/resolv.conf.bak
-    msg "[+]Backed up nameservers"
+    msg "Backed up nameservers"
 }
 
 backup_iptables() {
     info "Backing up iptables rules..."
     iptables-save >$BACKUPDIR/iptables.rules.bak
-    msg "[+]Backed up iptables rules"
+    msg "Backed up iptables rules"
 }
 
 backup_sysctl() {
     info "Backing up sysctl rules..."
     sysctl -a >$BACKUPDIR/sysctl.conf.bak
-    msg "[+]Backed up sysctl rules"
+    msg "Backed up sysctl rules"
 }
 
 restore_torrc() {
@@ -172,7 +172,7 @@ restore_torrc() {
         warn "Restoring tor config..."
         rm -f /etc/tor/torrc
         mv $BACKUPDIR/torrc.bak /etc/tor/torrc
-        msg "[+]Restored tor config"
+        msg "Restored tor config"
     fi
 }
 
@@ -181,7 +181,7 @@ restore_resolv_conf() {
         warn "Restoring nameservers..."
         rm -f $BACKUPDIR/resolv.conf
         mv $BACKUPDIR/resolv.conf.bak /etc/resolv.conf
-        msg "[+]Restored nameservers"
+        msg "Restored nameservers"
     fi
 }
 
@@ -196,10 +196,10 @@ restore_iptables() {
 
 restore_sysctl() {
     if [ -e $BACKUPDIR/sysctl.conf.bak ]; then
-        warn "[!]Restoring sysctl rules"
+        warn "Restoring sysctl rules"
         sysctl -p $BACKUPDIR/sysctl.conf.bak &>"/dev/null"
         rm -f $BACKUPDIR/sysctl.conf.bak
-        msg "[+]Restored sysctl rules"
+        msg "Restored sysctl rules"
     fi
 }
 
@@ -216,7 +216,7 @@ nameserver 8.8.8.8
 nameserver 8.8.4.4
 EOF
     chmod 644 /etc/resolv.conf
-    msg "[+]Configured nameservers"
+    msg "Configured nameservers"
 }
 
 gen_torrc() {
@@ -246,7 +246,7 @@ UseEntryGuards 1
 EnforceDistinctSubnets 1
 EOF
     chmod 644 ${TORRC}
-    msg "[🗸]Configured tor"
+    msg "Configured tor"
 }
 
 apply_iptables_rules() {
@@ -275,7 +275,7 @@ apply_iptables_rules() {
     iptables -A OUTPUT -m owner --uid-owner $TOR_UID -j ACCEPT
     iptables -A OUTPUT -j REJECT
 
-    msg "[+]Applied iptables rules"
+    msg "Applied iptables rules"
 }
 
 apply_sysctl_rules() {
@@ -421,14 +421,14 @@ start() {
 
     apply_sysctl_rules
 
-    msg "[✓]All traffic is successfully routed through the Tor network"
+    msg "All traffic is successfully routed through the Tor network"
 
     touch $BACKUPDIR/started
 }
 
 stop() {
     if ! is_started; then
-        err "[!]Seconionis is already stopped"
+        err "Seconionis is already stopped"
     fi
 
     restore_sysctl
@@ -448,10 +448,10 @@ stop() {
 
 changeid() {
     if ! is_started; then
-        err "[!]Seconionis stopped"
+        err "Seconionis stopped"
     fi
 
-    info "[>]Changing tor identity..."
+    info "Changing tor identity..."
     stop_service tor &>"/dev/null"
     sleep 1
     start_service tor &>"/dev/null"
@@ -459,7 +459,7 @@ changeid() {
 }
 
 changemac() {
-    warn "[>]Changing mac addresses..."
+    warn "Changing mac addresses..."
     IFACES=$(ip -o link show | awk -F': ' '{print $2}')
     for IFACE in $IFACES; do
         if [ $IFACE != "lo" ]; then
@@ -471,8 +471,8 @@ changemac() {
     msg "Changed mac addresses"
 }
 
-revertvmac() {
-    warn "[>]Reverting mac addresses..."
+revertmac() {
+    warn "Reverting mac addresses..."
     IFACES=$(ip -o link show | awk -F': ' '{print $2}')
     for IFACE in $IFACES; do
         if [ $IFACE != "lo" ]; then
@@ -498,21 +498,21 @@ status() {
     fi
 
     if [[ "${TORSTATUS}" == "active" ]]; then
-        msg "[+]Tor service is: ${TORSTATUS}"
+        msg "Tor service is: ${TORSTATUS}"
     else
-        warn "[!]Tor service is: ${TORSTATUS}"
+        warn "Tor service is: ${TORSTATUS}"
     fi
 
     if [[ "${AUTOWIPESTATUS}" == "enabled" ]]; then
-        msg "[+]seconionis-autowipe service is: ${AUTOWIPESTATUS}"
+        msg "seconionis-autowipe service is: ${AUTOWIPESTATUS}"
     else
-        warn "[!]seconionis-autowipe service is: ${AUTOWIPESTATUS}"
+        warn "seconionis-autowipe service is: ${AUTOWIPESTATUS}"
     fi
 
     if [[ "${AUTOSTARTSTATUS}" == "enabled" ]]; then
-        msg "[+]seconionis-autostart service is: ${AUTOSTARTSTATUS}"
+        msg "seconionis-autostart service is: ${AUTOSTARTSTATUS}"
     else
-        warn "[!]seconionis-autostart service is: ${AUTOSTARTSTATUS}"
+        warn "seconionis-autostart service is: ${AUTOSTARTSTATUS}"
     fi
 }
 
@@ -612,17 +612,17 @@ main() {
     changeid)
         check_root
         check_backup_dir
-        chngid
+        changeid
         ;;
     changemac)
         check_root
         check_backup_dir
-        chngmac
+        changemac
         ;;
     revertmac)
         check_root
         check_backup_dir
-        rvmac
+        revertmac
         ;;
     version)
         version
