@@ -209,7 +209,13 @@ class SeconionisGUI(QMainWindow):
             self.show_message("Operation Result", result.stdout, QMessageBox.Information)
             
         except subprocess.CalledProcessError as e:
-            self.show_message("Error", f"Command error:\n{e.stderr}", QMessageBox.Warning)
+            error_message = e.stderr.strip()
+            if "You are not using Tor network" in error_message:
+                self.show_message("Error", "You are not using Tor network. Please start Seconionis first.", QMessageBox.Warning)
+            elif command == "changeid" and not error_message:
+                self.show_message("Error", "You are not using Tor network. Cannot change Tor ID.", QMessageBox.Warning)
+            else:
+                self.show_message("Error", f"Command error:\n{error_message}", QMessageBox.Warning)
         except Exception as e:
             self.show_message("Error", f"System error:\n{str(e)}", QMessageBox.Critical)
     
@@ -265,4 +271,4 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    main() 
+    main()
