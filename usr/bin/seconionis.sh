@@ -448,7 +448,7 @@ stop() {
 
 changeid() {
     if ! is_started; then
-        err "Seconionis stopped"
+        err "You are not using Tor network. Please start Seconionis first."
     fi
 
     info "Changing tor identity..."
