@@ -4,7 +4,7 @@
 # Developer : root0emir 
 
 # Seconionis version
-VERSION="Seconionis 1.4"
+VERSION="Seconionis 1.5"
 
 TOR_EXCLUDE="192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
 
