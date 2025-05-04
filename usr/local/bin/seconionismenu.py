@@ -10,7 +10,7 @@ from PyQt5.QtCore import Qt
 
 # Developer root0emir 
 # Securonis Linux Tor Traffic Router GUI Menu 
-# Seconionis Version 1.4
+# Seconionis Version 1.5
 
 class SeconionisGUI(QMainWindow):
     def __init__(self):
@@ -200,9 +200,12 @@ class SeconionisGUI(QMainWindow):
     
     def run_command(self, command):
         """Execute seconionis command and show results"""
+        # Securonis Linux Tor Traffic Router path
+        seconionis_path = "/usr/bin/seconionis"
+        
         try:
             # Run command
-            result = subprocess.run(["/usr/bin/seconionis", command], 
+            result = subprocess.run([seconionis_path, command], 
                                    capture_output=True, text=True, check=True)
             
             # Show result
@@ -212,6 +215,12 @@ class SeconionisGUI(QMainWindow):
             error_message = e.stderr.strip()
             if "You are not using Tor network" in error_message:
                 self.show_message("Error", "You are not using Tor network. Please start Seconionis first.", QMessageBox.Warning)
+            elif "Seconionis is already started" in error_message:
+                self.show_message("Information", "Seconionis is already running.", QMessageBox.Information)
+            elif "Seconionis is already stopped" in error_message:
+                self.show_message("Information", "Seconionis is not running.", QMessageBox.Information)
+            elif command == "restart" and ("not using Tor" in error_message or "already stopped" in error_message):
+                self.show_message("Error", "Tor is not running. Please start Tor routing first.", QMessageBox.Warning)
             elif command == "changeid" and not error_message:
                 self.show_message("Error", "You are not using Tor network. Cannot change Tor ID.", QMessageBox.Warning)
             else:
