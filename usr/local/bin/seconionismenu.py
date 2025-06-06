@@ -10,7 +10,7 @@ from PyQt5.QtCore import Qt
 
 # Developer root0emir 
 # Securonis Linux Tor Traffic Router GUI Menu 
-# Seconionis Version 1.4
+# Seconionis Version 1.5
 
 class SeconionisGUI(QMainWindow):
     def __init__(self):
