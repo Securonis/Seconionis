@@ -217,13 +217,44 @@ class SeconionisGUI(QMainWindow):
             is_running = self.check_status()
 
             # Handle special cases for restart and stop
-            if command == "restart" and not is_running:
-                self.show_message(
-                    "Command Result",
-                    "Cannot restart because Seconionis is not running. Please start it first.",
-                    QMessageBox.Warning
-                )
-                return
+            if command == "restart":
+                if not is_running:
+                    self.show_message(
+                        "Command Result",
+                        "Cannot restart because Seconionis is not running. Please start it first.",
+                        QMessageBox.Warning
+                    )
+                    return
+                else:
+                    # For restart, we'll manually run stop and then start
+                    stop_result = subprocess.run(
+                        ["/usr/bin/seconionis", "stop"],
+                        capture_output=True,
+                        text=True,
+                        check=False
+                    )
+                    # Small delay to ensure services are stopped
+                    import time
+                    time.sleep(1)
+                    start_result = subprocess.run(
+                        ["/usr/bin/seconionis", "start"],
+                        capture_output=True,
+                        text=True,
+                        check=False
+                    )
+                    
+                    # Combine outputs
+                    output = ""
+                    if stop_result.stdout.strip():
+                        output += stop_result.stdout.strip()
+                    if start_result.stdout.strip():
+                        if output: output += "\n\n"
+                        output += start_result.stdout.strip()
+                    
+                    if output:
+                        self.show_message("Operation Result", output, QMessageBox.Information)
+                    return
+
             elif command == "stop" and not is_running:
                 self.show_message(
                     "Command Result",
