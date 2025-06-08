@@ -214,6 +214,13 @@ class SeconionisGUI(QMainWindow):
                 self.show_message("Error", "You are not using Tor network. Please start Seconionis first.", QMessageBox.Warning)
             elif command == "changeid" and not error_message:
                 self.show_message("Error", "You are not using Tor network. Cannot change Tor ID.", QMessageBox.Warning)
+            elif "Seconionis is already started" in error_message:
+                self.show_message("Error", "Seconionis is already running.", QMessageBox.Warning)
+            elif "Seconionis is not started" in error_message:
+                if command == "restart":
+                    self.show_message("Error", "Cannot restart Tor because Seconionis is not running. Please start Seconionis first.", QMessageBox.Warning)
+                else:
+                    self.show_message("Error", "Seconionis is not running.", QMessageBox.Warning)
             else:
                 self.show_message("Error", f"Command error:\n{error_message}", QMessageBox.Warning)
         except Exception as e:
