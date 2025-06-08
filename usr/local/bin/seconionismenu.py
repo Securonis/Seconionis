@@ -201,48 +201,42 @@ class SeconionisGUI(QMainWindow):
     def run_command(self, command):
         """Execute seconionis command and show results"""
         try:
-            # Run command
-            result = subprocess.run(["/usr/bin/seconionis", command], 
-                                   capture_output=True, text=True, check=True)
+            # Run command and capture all output
+            result = subprocess.run(
+                ["/usr/bin/seconionis", command],
+                capture_output=True,
+                text=True,
+                check=False  # Don't raise exception on non-zero exit
+            )
             
-            # Show success message only if there's output
+            # Get both stdout and stderr
+            output = ""
             if result.stdout.strip():
-                self.show_message("Operation Result", result.stdout, QMessageBox.Information)
+                output += result.stdout.strip()
+            if result.stderr.strip():
+                if output:
+                    output += "\n\n"
+                output += result.stderr.strip()
             
-        except subprocess.CalledProcessError as e:
-            error_message = e.stderr.strip()
-            
-            # Handle specific error cases
-            if "You are not using Tor network" in error_message:
-                if command == "changeid":
-                    self.show_message("Error", "Cannot change Tor ID because Tor network is not active. Start Seconionis first.", QMessageBox.Warning)
+            # If we have any output, show it with appropriate icon
+            if output:
+                if result.returncode == 0:
+                    self.show_message("Operation Result", output, QMessageBox.Information)
                 else:
-                    self.show_message("Error", "You are not using Tor network. Please start Seconionis first.", QMessageBox.Warning)
-            elif "Seconionis is already started" in error_message:
-                if command == "start":
-                    self.show_message("Error", "Seconionis is already running. Use 'Restart Tor' if you want to restart it.", QMessageBox.Warning)
-                else:
-                    self.show_message("Error", "Seconionis is already running.", QMessageBox.Warning)
-            elif "Seconionis is not started" in error_message:
-                if command == "restart":
-                    self.show_message("Error", "Cannot restart Tor because Seconionis is not running. Please start Seconionis first.", QMessageBox.Warning)
-                elif command == "stop":
-                    self.show_message("Error", "Cannot stop Seconionis because it's not running.", QMessageBox.Warning)
-                elif command == "changeid":
-                    self.show_message("Error", "Cannot change Tor ID because Seconionis is not running.", QMessageBox.Warning)
-                else:
-                    self.show_message("Error", "Seconionis is not running.", QMessageBox.Warning)
-            elif "unable to start" in error_message.lower():
-                self.show_message("Error", "Failed to start Tor service. Please check if Tor is installed correctly.", QMessageBox.Warning)
-            elif "unable to stop" in error_message.lower():
-                self.show_message("Error", "Failed to stop Tor service. You may need to restart your system.", QMessageBox.Warning)
-            else:
-                # For any other errors, show the actual error message
-                self.show_message("Error", f"Command error:\n{error_message}", QMessageBox.Warning)
+                    self.show_message("Command Result", output, QMessageBox.Warning)
+                    
         except FileNotFoundError:
-            self.show_message("Error", "Seconionis command not found. Please make sure Seconionis is installed correctly.", QMessageBox.Critical)
+            self.show_message(
+                "System Error", 
+                "Seconionis command not found. Please make sure Seconionis is installed correctly.", 
+                QMessageBox.Critical
+            )
         except Exception as e:
-            self.show_message("Error", f"System error:\n{str(e)}", QMessageBox.Critical)
+            self.show_message(
+                "System Error", 
+                f"An unexpected error occurred: {str(e)}", 
+                QMessageBox.Critical
+            )
     
     def show_about(self):
         """Display about information"""
