@@ -198,15 +198,53 @@ class SeconionisGUI(QMainWindow):
             }
         """)
     
+    def check_status(self):
+        """Check if Seconionis is running"""
+        try:
+            result = subprocess.run(
+                ["/usr/bin/seconionis", "status"],
+                capture_output=True,
+                text=True,
+                check=False
+            )
+            return "Seconionis started" in result.stdout
+        except:
+            return False
+
     def run_command(self, command):
         """Execute seconionis command and show results"""
         try:
-            # Run command and capture all output
+            is_running = self.check_status()
+
+            # Handle special cases for restart and stop
+            if command == "restart" and not is_running:
+                self.show_message(
+                    "Command Result",
+                    "Cannot restart because Seconionis is not running. Please start it first.",
+                    QMessageBox.Warning
+                )
+                return
+            elif command == "stop" and not is_running:
+                self.show_message(
+                    "Command Result",
+                    "Seconionis is not running.",
+                    QMessageBox.Warning
+                )
+                return
+            elif command == "start" and is_running:
+                self.show_message(
+                    "Command Result",
+                    "Seconionis is already running. Use 'Restart Tor' if you want to restart it.",
+                    QMessageBox.Warning
+                )
+                return
+
+            # Run the actual command
             result = subprocess.run(
                 ["/usr/bin/seconionis", command],
                 capture_output=True,
                 text=True,
-                check=False  # Don't raise exception on non-zero exit
+                check=False
             )
             
             # Get both stdout and stderr
@@ -218,7 +256,7 @@ class SeconionisGUI(QMainWindow):
                     output += "\n\n"
                 output += result.stderr.strip()
             
-            # If we have any output, show it with appropriate icon
+            # Show output with appropriate icon
             if output:
                 if result.returncode == 0:
                     self.show_message("Operation Result", output, QMessageBox.Information)
